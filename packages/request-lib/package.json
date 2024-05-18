@@ -1,0 +1,13 @@
+{
+  "name": "@whale-requset/request-lib",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "main": "index.ts",
+  "peerDependencies": {
+    "vue": "^3.2.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.8"
+  }
+}

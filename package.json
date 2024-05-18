@@ -1,0 +1,17 @@
+{
+  "name": "whaleRequest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm run -C packages/vue3demo dev",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs:dev": "pnpm run -C packages/yxhcVitpress docs:dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.12.12"
+  }
+}
