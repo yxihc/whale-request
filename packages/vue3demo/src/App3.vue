@@ -19,20 +19,21 @@
 import {whaleRequest} from "@whale-requset/request-lib/request-core";
 
 
-
-
 getData()
 
 // setTimeout(() => {
 //   console.log('===========================第二次===========================')
 //   getData()
 // }, 2000)
-
 function getData() {
   const url = 'http://jsonplaceholder.typicode.com/posts'
 // 示例请求
   whaleRequest.get({
-    url: url, headers: {}, data: {}
+    url: url, headers: {}, data: {},cache:{
+      duration:2000,
+      useCache:true,
+      isPersist:true
+    }
   }).then(data => {
     console.log('示例请求成功:', data);
   }).catch(error => {

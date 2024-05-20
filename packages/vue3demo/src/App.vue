@@ -26,8 +26,6 @@ class CacheManager implements AsyncCacheStore {
 
   async get<T>(key: string): Promise<T | undefined> {
     const item = await this.store.get<CacheItem<T>>(key);
-
-
     if (item?.noExpire){
         console.log(item)
         return item.value;
@@ -41,15 +39,12 @@ class CacheManager implements AsyncCacheStore {
             return undefined;
         }
     }
-
   }
 
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
-    const expiration = Date.now() + ttl * 1000;
-
+    const expiration = Date.now() + ttl ;
     let noExpire = false
     if (!ttl) noExpire = true
-
     await this.store.set(key, {value, expiration, noExpire});
   }
 
@@ -88,12 +83,12 @@ async function exampleUsage() {
   const memoryStore = new MemoryCacheStore();
   const cacheManager = new CacheManager(memoryStore);
 
-  await cacheManager.set("key1", "value1"); // 缓存 10 秒
+  await cacheManager.set("key1", "value1",2000); // 缓存 10 秒
   console.log(await cacheManager.get<string>("key1")); // 输出: value1
 
-  // setTimeout(async () => {
-  //   console.log(await cacheManager.get<string>("key1")); // 输出: undefined（缓存过期）
-  // }, 4);
+  setTimeout(async () => {
+    console.log(await cacheManager.get<string>("key1")); // 输出: undefined（缓存过期）
+  }, 3000);
 }
 
 exampleUsage();

@@ -1,8 +1,9 @@
 // NetworkClient.ts
 import {Requestor} from './requestor';
-import {requestCache} from './cache';
+import {useCache} from './cache';
 import {RequestOptionsType, RequestOptions} from "./requestOptions";
 import {RequestInterceptor} from "./interceptors.ts";
+import {CacheItem} from "./cache/cacheItem";
 
 
 class WhaleRequest implements Requestor{
@@ -42,6 +43,62 @@ class WhaleRequest implements Requestor{
     return Promise.reject(error);
   }
 
+
+  private async applyCache(chain: Promise<RequestOptions>,options:RequestOptions,method: RequestOptionsType,): Promise<RequestOptions> {
+    if (options.cache&&options.cache.useCache){
+      const  config = options.cache
+      // 获取缓存的key
+      let key=''
+      if (config.key){
+        key = config.key(options)
+      }else{
+        key = this.defaultCacheKey(options)
+      }
+
+      // 获取缓存实现类
+      const requestCache = useCache(config.isPersist)
+
+      // const hasKey = await requestCache.has(key); // 是否存在缓存
+      // if(hasKey && config.isValid?.(key, options)){  // 存在缓存并且缓存有效
+      //   // 返回缓存结果
+      // }
+
+      const cachedResponse = await requestCache.get(key);
+      let valid= true
+      if (config.isValid){
+        valid = config.isValid(key, options)
+      }else {
+        valid = true
+      }
+      if (cachedResponse&&valid) {
+        chain = chain.then(async () => {
+          return Promise.resolve(cachedResponse)
+        });
+      } else {
+        // 发送请求（由使用者编写方法，必须返回promis）
+        let requestFunc = async () => {
+          try {
+            let response = await method(options);
+            requestCache.set(key, response,config.duration?config.duration:60000); // Cache the response
+            return response;
+          } catch (error) {
+            await this.applyErrorInterceptors(error);
+          }
+        };
+        chain = chain.then(requestFunc);
+      }
+    }else{
+      chain = chain.then(method);
+    }
+    return chain;
+  }
+
+  private defaultCacheKey(options: RequestOptions):string{
+    // 请求缓存
+    const cacheKey = `${options.url}_${JSON.stringify(options.params || {})}_${JSON.stringify(options.data || {})}`;
+    return cacheKey
+  }
+
   private async requestWrapper(
     method: RequestOptionsType,
     options: RequestOptions,
@@ -51,26 +108,28 @@ class WhaleRequest implements Requestor{
     chain = this.applyRequestInterceptors(chain)
 
     // 请求缓存
-    const cacheKey = `${options.url}_${JSON.stringify(options.params || {})}_${JSON.stringify(options.data || {})}`;
-    const cachedResponse = requestCache.get(cacheKey);
-    if (cachedResponse) {
-      console.log('使用缓存了')
-      chain = chain.then(async () => {
-        return Promise.resolve(cachedResponse)
-      });
-    } else {
-      // 发送请求（由使用者编写方法，必须返回promis）
-      let requestFunc = async () => {
-        try {
-          let response = await method(options);
-          requestCache.set(cacheKey, response); // Cache the response
-          return response;
-        } catch (error) {
-          await this.applyErrorInterceptors(error);
-        }
-      };
-      chain = chain.then(requestFunc);
-    }
+    // const cacheKey = `${options.url}_${JSON.stringify(options.params || {})}_${JSON.stringify(options.data || {})}`;
+
+    chain = this.applyCache(chain, options, method);
+
+    // const cachedResponse = useCache(options.cache).get(cacheKey);
+    // if (cachedResponse) {
+    //   chain = chain.then(async () => {
+    //     return Promise.resolve(cachedResponse)
+    //   });
+    // } else {
+    //   // 发送请求（由使用者编写方法，必须返回promis）
+    //   let requestFunc = async () => {
+    //     try {
+    //       let response = await method(options);
+    //       requestCache.set(cacheKey, response); // Cache the response
+    //       return response;
+    //     } catch (error) {
+    //       await this.applyErrorInterceptors(error);
+    //     }
+    //   };
+    //   chain = chain.then(requestFunc);
+    // }
 
     // 依次应用响应拦截器
     chain = this.applyResponseInterceptors(chain)
