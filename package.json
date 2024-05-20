@@ -12,7 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^20.12.12"
+    "@types/node": "^20.12.12",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "typescript": "^5.2.2"

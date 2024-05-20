@@ -1,11 +1,15 @@
-export function debounce(func: Function, wait: number) {
-    let timeout: ReturnType<typeof setTimeout>;
-    return function(...args: any[]) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
+export function debounce<T extends (...args: any[]) => Promise<any>>(func: T, wait: number): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+    let timeout: NodeJS.Timeout;
+    return (...args: Parameters<T>): Promise<ReturnType<T>> => {
+        return new Promise((resolve, reject) => {
+            if (timeout) clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                func(...args).then(resolve).catch(reject);
+            }, wait);
+        });
     };
 }
-
 export function throttle(func: Function, limit: number) {
     let inThrottle: boolean;
     return function(...args: any[]) {

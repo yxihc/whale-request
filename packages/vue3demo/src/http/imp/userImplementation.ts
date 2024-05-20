@@ -21,9 +21,8 @@ const requestInterceptors = [
 
 const responseInterceptors = [
     (response: any) => {
-        // Example interceptor: Log the response
         console.log('响应拦截器:', response);
-        return response;
+        return response.data;
     },
 ];
 

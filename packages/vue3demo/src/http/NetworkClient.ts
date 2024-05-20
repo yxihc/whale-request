@@ -1,94 +1,102 @@
 // NetworkClient.ts
-import { HttpClient } from './HttpClient';
-import { debounce, throttle, idempotentRequest } from './utils';
-import { requestCache } from './Cache';
+import {HttpClient} from './HttpClient';
+import {requestCache} from './Cache';
 import {RequestMethod, RequestOptions} from "./RequestOptions.ts";
+import {RequestInterceptor} from "./Interceptors.ts";
 
 class NetworkClient {
-    private client: HttpClient;
-    private debounceTime: number;
-    private throttleTime: number;
+  private client: HttpClient;
 
-    constructor(client: HttpClient, debounceTime = 300, throttleTime = 300) {
-        this.client = client;
-        this.debounceTime = debounceTime;
-        this.throttleTime = throttleTime;
+  constructor(client: HttpClient) {
+    this.client = client;
+  }
+
+  // private async applyRequestInterceptors1(options: RequestOptions): Promise<RequestOptions> {
+  //   if (this.client.requestInterceptors) {
+  //     for (const interceptor of this.client.requestInterceptors) {
+  //       options = await interceptor(options);
+  //     }
+  //   }
+  //   return options;
+  // }
+  //
+  // private async applyResponseInterceptors1(response: any): Promise<any> {
+  //   if (this.client.responseInterceptors) {
+  //     for (const interceptor of this.client.responseInterceptors) {
+  //       response = await interceptor(response);
+  //     }
+  //   }
+  //   return response;
+  // }
+
+  private async applyRequestInterceptors(options: Promise<RequestOptions>): Promise<RequestOptions> {
+    return this.applyInterceptors(options, this.client.requestInterceptors)
+  }
+
+  private async applyResponseInterceptors(options: Promise<RequestOptions>): Promise<RequestOptions> {
+    return this.applyInterceptors(options, this.client.responseInterceptors)
+  }
+
+  private async applyInterceptors(options: Promise<RequestOptions>, interceptors?: RequestInterceptor[]): Promise<RequestOptions> {
+    if (interceptors) {
+      interceptors?.forEach(interceptor => {
+        options = options.then(interceptor);
+      });
     }
+    return options;
+  }
 
-    private async applyRequestInterceptors(options: RequestOptions): Promise<RequestOptions> {
-        if (this.client.requestInterceptors) {
-            for (const interceptor of this.client.requestInterceptors) {
-                options = await interceptor(options);
-            }
+  private async applyErrorInterceptors(error: any): Promise<any> {
+    if (this.client.errorInterceptors) {
+      for (const interceptor of this.client.errorInterceptors) {
+        error = await interceptor(error);
+      }
+    }
+    return Promise.reject(error);
+  }
+
+  private async requestWrapper(
+    method: RequestMethod,
+    options: RequestOptions,
+  ) {
+    let chain = Promise.resolve(options);
+    // 依次应用请求拦截器
+    chain = this.applyRequestInterceptors(chain)
+
+    // 请求缓存
+    const cacheKey = `${options.url}_${JSON.stringify(options.params || {})}_${JSON.stringify(options.data || {})}`;
+    const cachedResponse = requestCache.get(cacheKey);
+    if (cachedResponse) {
+      console.log('使用缓存了')
+      chain = chain.then(async () => {
+        return Promise.resolve(cachedResponse)
+      });
+    } else {
+      // 发送请求（由使用者编写方法，必须返回promis）
+      let requestFunc = async () => {
+        try {
+          let response = await method(options);
+          requestCache.set(cacheKey, response); // Cache the response
+          return response;
+        } catch (error) {
+          await this.applyErrorInterceptors(error);
         }
-        return options;
+      };
+      chain = chain.then(requestFunc);
     }
 
-    private async applyResponseInterceptors(response: any): Promise<any> {
-        if (this.client.responseInterceptors) {
-            for (const interceptor of this.client.responseInterceptors) {
-                response = await interceptor(response);
-            }
-        }
-        return response;
-    }
+    // 依次应用响应拦截器
+    chain = this.applyResponseInterceptors(chain)
+    return chain
+  }
 
-    private async applyErrorInterceptors(error: any): Promise<any> {
-        if (this.client.errorInterceptors) {
-            for (const interceptor of this.client.errorInterceptors) {
-                error = await interceptor(error);
-            }
-        }
-        return Promise.reject(error);
-    }
+  async get(options: RequestOptions) {
+    return this.requestWrapper(this.client.get, options)
+  }
 
-    private async requestWrapper(
-        method: RequestMethod,
-        options: RequestOptions,
-        idempotentKey?: string
-    ) {
-        options = await this.applyRequestInterceptors(options);
-
-        // Check cache first
-        // const cacheKey = `${options.url}_${JSON.stringify(options.params || {})}_${JSON.stringify(options.data || {})}`;
-        // const cachedResponse = requestCache.get(cacheKey);
-        // if (cachedResponse) {
-        //     return cachedResponse;
-        // }
-
-        let requestFunc = async () => {
-            try {
-                let response = await method(options);
-                response = await this.applyResponseInterceptors(response);
-                // requestCache.set(cacheKey, response); // Cache the response
-                return response;
-            } catch (error) {
-                await this.applyErrorInterceptors(error);
-            }
-        };
-
-        if (idempotentKey) {
-            requestFunc = () => idempotentRequest(idempotentKey, requestFunc);
-        }
-
-        return requestFunc();
-    }
-
-    async get(options: RequestOptions, idempotentKey?: string) {
-        const wrappedRequest = debounce(
-            () => this.requestWrapper(this.client.get, options, idempotentKey),
-            this.debounceTime
-        );
-        return wrappedRequest();
-    }
-
-    async post(options: RequestOptions, idempotentKey?: string) {
-        const wrappedRequest = throttle(
-            () => this.requestWrapper(this.client.post, options, idempotentKey),
-            this.throttleTime
-        );
-        return wrappedRequest();
-    }
+  async post(options: RequestOptions) {
+    return this.requestWrapper(this.client.post, options)
+  }
 }
 
 export default NetworkClient;
