@@ -3,10 +3,10 @@ import './style.css'
 import App from './App.vue'
 
 
-
 // 注入
 import {httpClient} from '@whale-requset/request-lib/request-axios-imp'
-import {inject,whaleRequest,useRequestor} from "@whale-requset/request-lib/request-core";
+import {inject} from "@whale-requset/request-lib/request-core";
+
 inject(httpClient)
 
 
