@@ -1,61 +1,108 @@
-export interface RequestOptions {
+// NetworkClient.ts
+import {Requestor} from './requestor';
+import {requestCache} from './cache';
+import {RequestOptionsType, RequestOptions} from "./requestOptions";
+import {RequestInterceptor} from "./interceptors.ts";
+
+
+class WhaleRequest implements Requestor{
+  private  client: Requestor;
+
+  static create(client: Requestor){
+    return new WhaleRequest(client)
+  }
+
+  constructor(client: Requestor) {
+    this.client = client;
+  }
+
+  private async applyRequestInterceptors(options: Promise<RequestOptions>): Promise<RequestOptions> {
+    return this.applyInterceptors(options, this.client.requestInterceptors)
+  }
+
+  private async applyResponseInterceptors(options: Promise<RequestOptions>): Promise<RequestOptions> {
+    return this.applyInterceptors(options, this.client.responseInterceptors)
+  }
+
+  private async applyInterceptors(options: Promise<RequestOptions>, interceptors?: RequestInterceptor[]): Promise<RequestOptions> {
+    if (interceptors) {
+      interceptors?.forEach(interceptor => {
+        options = options.then(interceptor);
+      });
+    }
+    return options;
+  }
+
+  private async applyErrorInterceptors(error: any): Promise<any> {
+    if (this.client.errorInterceptors) {
+      for (const interceptor of this.client.errorInterceptors) {
+        error = await interceptor(error);
+      }
+    }
+    return Promise.reject(error);
+  }
+
+  private async requestWrapper(
+    method: RequestOptionsType,
+    options: RequestOptions,
+  ) {
+    let chain = Promise.resolve(options);
+    // 依次应用请求拦截器
+    chain = this.applyRequestInterceptors(chain)
+
+    // 请求缓存
+    const cacheKey = `${options.url}_${JSON.stringify(options.params || {})}_${JSON.stringify(options.data || {})}`;
+    const cachedResponse = requestCache.get(cacheKey);
+    if (cachedResponse) {
+      console.log('使用缓存了')
+      chain = chain.then(async () => {
+        return Promise.resolve(cachedResponse)
+      });
+    } else {
+      // 发送请求（由使用者编写方法，必须返回promis）
+      let requestFunc = async () => {
+        try {
+          let response = await method(options);
+          requestCache.set(cacheKey, response); // Cache the response
+          return response;
+        } catch (error) {
+          await this.applyErrorInterceptors(error);
+        }
+      };
+      chain = chain.then(requestFunc);
+    }
+
+    // 依次应用响应拦截器
+    chain = this.applyResponseInterceptors(chain)
+    return chain
+  }
+
+  //  get(url:string,options: RequestOptions) {
+  //    console.log(url)
+  //   return this.requestWrapper(this.client.get(url, options), options)
+  // }
+
+  get(options: RequestOptions) {
+    return this.requestWrapper(this.client.get,options);
+  }
+
+  async post(options: RequestOptions) {
+    return this.requestWrapper(this.client.post, options)
+  }
 }
-
-// 定义接口，不负责实现
-export interface Requestor {
-  get(url: string, options: RequestOptions): Promise<Response>;
-
-  post(url: string, data: any, options: RequestOptions): Promise<Response>;
-}
-
 
 
 // 本模块的大部分功能都需要使用到requestor
-let req: Requestor;
+export let whaleRequest: WhaleRequest;
 
 export function inject(requestor: Requestor) {
-  req = requestor;
+  whaleRequest = WhaleRequest.create(requestor)
 }
 
 
 export function useRequestor(): Requestor {
-  return req;
-}
-
-// 创建一个可以重试的请求
-export function createDebounceRequestor(debounceInterval = 1000) {
-  const req = useRequestor();
-  // 进一步配置req
-  interceptPromise(req.get)
-  return req;
+  return whaleRequest;
 }
 
 
-function interceptPromise(promise) {
-  return new Promise((resolve, reject) => {
-    promise.then(value => {
-      // 在这里可以进行拦截处理
-      console.log('Before promise resolves.');
-      resolve(value);
-    }).catch(error => {
-      // 在这里可以进行拦截处理
-      console.log('Before promise rejects.');
-      reject(error);
-    });
-  });
-}
-
-// 对请求进行配置
-// 注册请求发送前的事件
-//   req.on('beforeRequest', async (config) => {
-//     const key = options.key(config); // 获得缓存键
-//     const hasKey = await store.has(key); // 是否存在缓存
-//     if (hasKey && options.isValid(key, config)) {  // 存在缓存并且缓存有效
-//       // 返回缓存结果
-//     }
-//   })
-//   req.on('ceshi', (config, resp) => {
-//     //获取消息
-//   })
-
-
+export default WhaleRequest;

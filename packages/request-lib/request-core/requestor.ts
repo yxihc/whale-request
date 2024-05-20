@@ -1,7 +1,7 @@
 import {RequestInterceptor, ResponseInterceptor, ErrorInterceptor} from './Interceptors.ts';
-import {RequestOptionsType} from "./RequestOptions.ts";
+import {RequestOptionsType} from "./requestOptions.ts";
 
-export interface HttpClient {
+export interface Requestor {
   get: RequestOptionsType;
   post: RequestOptionsType;
   put?: RequestOptionsType;

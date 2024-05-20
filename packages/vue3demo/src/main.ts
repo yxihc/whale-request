@@ -5,8 +5,9 @@ import App from './App.vue'
 
 
 // 注入
-import {inject} from '@whale-requset/request-lib/request-core'
-import {requestor} from '@whale-requset/request-lib/request-axios-imp'
-inject(requestor);
+import {httpClient} from '@whale-requset/request-lib/request-axios-imp'
+import {inject,whaleRequest,useRequestor} from "@whale-requset/request-lib/request-core";
+inject(httpClient)
+
 
 createApp(App).mount('#app')

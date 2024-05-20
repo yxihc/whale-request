@@ -1,33 +1,20 @@
 // NetworkClient.ts
 import {HttpClient} from './HttpClient';
 import {requestCache} from './Cache';
-import {RequestMethod, RequestOptions} from "./RequestOptions.ts";
+import {RequestOptionsType, RequestOptions} from "./RequestOptions.ts";
 import {RequestInterceptor} from "./Interceptors.ts";
 
-class NetworkClient {
-  private client: HttpClient;
+
+class NetworkClient implements HttpClient{
+  private  client: HttpClient;
+
+  static create(client: HttpClient){
+    return new NetworkClient(client)
+  }
 
   constructor(client: HttpClient) {
     this.client = client;
   }
-
-  // private async applyRequestInterceptors1(options: RequestOptions): Promise<RequestOptions> {
-  //   if (this.client.requestInterceptors) {
-  //     for (const interceptor of this.client.requestInterceptors) {
-  //       options = await interceptor(options);
-  //     }
-  //   }
-  //   return options;
-  // }
-  //
-  // private async applyResponseInterceptors1(response: any): Promise<any> {
-  //   if (this.client.responseInterceptors) {
-  //     for (const interceptor of this.client.responseInterceptors) {
-  //       response = await interceptor(response);
-  //     }
-  //   }
-  //   return response;
-  // }
 
   private async applyRequestInterceptors(options: Promise<RequestOptions>): Promise<RequestOptions> {
     return this.applyInterceptors(options, this.client.requestInterceptors)
@@ -56,7 +43,7 @@ class NetworkClient {
   }
 
   private async requestWrapper(
-    method: RequestMethod,
+    method: RequestOptionsType,
     options: RequestOptions,
   ) {
     let chain = Promise.resolve(options);
@@ -90,13 +77,32 @@ class NetworkClient {
     return chain
   }
 
-  async get(options: RequestOptions) {
-    return this.requestWrapper(this.client.get, options)
+  //  get(url:string,options: RequestOptions) {
+  //    console.log(url)
+  //   return this.requestWrapper(this.client.get(url, options), options)
+  // }
+
+  get(options: RequestOptions) {
+    return this.requestWrapper(this.client.get,options);
   }
 
   async post(options: RequestOptions) {
     return this.requestWrapper(this.client.post, options)
   }
 }
+
+
+// 本模块的大部分功能都需要使用到requestor
+export let whaleRequest: NetworkClient;
+
+export function inject(requestor: HttpClient) {
+  whaleRequest = NetworkClient.create(requestor)
+}
+
+
+export function useRequestor(): HttpClient {
+  return whaleRequest;
+}
+
 
 export default NetworkClient;
