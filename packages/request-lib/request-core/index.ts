@@ -1,7 +1,7 @@
 // NetworkClient.ts
 import {Requestor} from './requestor';
 import {useCache} from './cache';
-import {RequestOptionsType, RequestOptions, CacheOptions} from "./requestOptions";
+import {RequestOptionsType, RequestOptions, CacheOptions, RequestOptionsTypeTips} from "./requestOptions";
 import {RequestInterceptor} from "./interceptors";
 import {CacheItem} from "./cache/cacheItem";
 import {debounce, retry} from "./utils";
@@ -177,11 +177,15 @@ class WhaleRequest implements Requestor {
   //   return this.requestWrapper(this.client.get(url, options), options)
   // }
 
-  get(options: RequestOptions) {
+  get(options: RequestOptionsTypeTips) {
     return this.requestWrapper(this.client.get, options);
   }
 
-  async post(options: RequestOptions) {
+
+  get1(options:RequestOptionsTypeTips) {
+    return Promise.resolve('11')
+  }
+  async post(options: RequestOptionsTypeTips) {
     return this.requestWrapper(this.client.post, options)
   }
 }

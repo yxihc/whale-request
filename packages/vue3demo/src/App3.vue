@@ -29,9 +29,7 @@ getData()
 
 function getData() {
   const url = 'http://jsonplaceholder.typicode.com/posts1'
-  const xx: RequestOptions = {
-    url: ""
-  }
+
   whaleRequest.get({
     url: url,
     headers: {},
@@ -59,6 +57,30 @@ function testPost() {
 // networkClient.get({ url: url, data: { key: 'value' } }).then(data => {
 //   console.log('POST Response:', data);
 // });
+
+
+
+
+// 定义 RequestParams 类型别名
+type RequestParams = {
+    url: string;
+    headers: Record<string, string>;
+    data: Record<string, any>;
+    retry: number;
+    useCache: boolean;
+    te:boolean,
+    cache: {
+        duration: number;
+        isPersist: boolean;
+    };
+}
+
+// 定义 performRequest 函数，并指定参数类型为 RequestParams
+function performRequest(options: RequestParams) {
+    // 实际执行请求的逻辑
+}
+
+
 
 </script>
 

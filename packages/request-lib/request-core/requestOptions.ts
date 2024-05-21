@@ -1,5 +1,6 @@
 // RequestMethod.ts
 export interface RequestOptions {
+    //请求地址
     url: string;
     params?: Record<string, any>;
     data?: Record<string, any>;
@@ -23,5 +24,5 @@ export interface CacheOptions{
     isValid?(key:string, config:RequestOptions):boolean
 }
 
-
 export type RequestOptionsType = (options: RequestOptions) => Promise<any>;
+export type RequestOptionsTypeTips = RequestOptions;
