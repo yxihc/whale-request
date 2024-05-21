@@ -1,5 +1,5 @@
 {
-  "name": "@whaleRequest/vue3demo",
+  "name": "@whale-request/vue3demo",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@whale-requset/request-lib": "workspace:*",
     "vue": "^3.4.21",
     "axios": "^1.6.8"
   },

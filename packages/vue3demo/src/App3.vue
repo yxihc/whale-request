@@ -1,9 +1,7 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-    <div>
-    </div>
+  <div></div>
 </template>
 
 <script setup lang="ts">
@@ -16,8 +14,8 @@
 // import {inject,whaleRequest,useRequestor} from "@whale-requset/request-lib/request-core";
 // inject(httpClient)
 
-import {whaleRequest} from "@whale-requset/request-lib/request-core";
-import {RequestOptions} from "@whale-requset/request-lib/request-core/requestOptions.ts";
+import { whaleRequest } from '@whale-requset/request-lib/request-core'
+import { RequestOptions } from '@whale-requset/request-lib/request-core/requestOptions.ts'
 
 getData()
 //
@@ -26,31 +24,33 @@ getData()
 //   getData()
 // }, 1000)
 
-
 function getData() {
   const url = 'http://jsonplaceholder.typicode.com/posts1'
-
-  whaleRequest.get({
-    url: url,
-    headers: {},
-    data: {},
-    retry: 2,
-    useCache: true,
-    cache: {
-      duration: 5000,
-      isPersist: true
-    },
-  }).then(data => {
-    console.log('示例请求成功:', data);
-  }).catch(error => {
-    console.log('示例请求失败:', error);
-  })
+  whaleRequest
+    .get({
+      url: url,
+      headers: {},
+      data: {},
+      retry: 2,
+      useCache: true,
+      cache: {
+        duration: 5000,
+        isValid(key: string, config: RequestOptions): boolean {},
+        isPersist: true,
+      },
+    })
+    .then((data) => {
+      console.log('示例请求成功:', data)
+    })
+    .catch((error) => {
+      console.log('示例请求失败:', error)
+    })
 }
 
 function testPost() {
   const url = 'http://jsonplaceholder.typicode.com/posts'
   let formdata = new FormData()
-  formdata.append("1", "1")
+  formdata.append('1', '1')
 }
 
 //
@@ -58,31 +58,24 @@ function testPost() {
 //   console.log('POST Response:', data);
 // });
 
-
-
-
 // 定义 RequestParams 类型别名
 type RequestParams = {
-    url: string;
-    headers: Record<string, string>;
-    data: Record<string, any>;
-    retry: number;
-    useCache: boolean;
-    te:boolean,
-    cache: {
-        duration: number;
-        isPersist: boolean;
-    };
+  url: string
+  headers: Record<string, string>
+  data: Record<string, any>
+  retry: number
+  useCache: boolean
+  te: boolean
+  cache: {
+    duration: number
+    isPersist: boolean
+  }
 }
 
 // 定义 performRequest 函数，并指定参数类型为 RequestParams
 function performRequest(options: RequestParams) {
-    // 实际执行请求的逻辑
+  // 实际执行请求的逻辑
 }
-
-
-
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

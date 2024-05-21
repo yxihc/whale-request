@@ -1,46 +1,57 @@
 // NetworkClient.ts
-import {Requestor} from './requestor';
-import {useCache} from './cache';
-import {RequestOptionsType, RequestOptions, CacheOptions, RequestOptionsTypeTips} from "./requestOptions";
-import {RequestInterceptor} from "./interceptors";
-import {CacheItem} from "./cache/cacheItem";
-import {debounce, retry} from "./utils";
+import { useCache } from './cache'
+import type { Requestor } from './requestor'
+import type { CacheManager } from './cache'
+import type {
+  CacheOptions,
+  RequestOptions,
+  RequestOptionsType,
+  RequestOptionsTypeTips,
+} from './requestOptions'
+import type { RequestInterceptor } from './interceptors'
 
 class WhaleRequest implements Requestor {
-  private client: Requestor;
+  private client: Requestor
 
   static create(client: Requestor) {
     return new WhaleRequest(client)
   }
 
   constructor(client: Requestor) {
-    this.client = client;
+    this.client = client
   }
 
-  private async applyRequestInterceptors(options: Promise<RequestOptions>): Promise<RequestOptions> {
+  private async applyRequestInterceptors(
+    options: Promise<RequestOptions>,
+  ): Promise<RequestOptions> {
     return this.applyInterceptors(options, this.client.requestInterceptors)
   }
 
-  private async applyResponseInterceptors(options: Promise<RequestOptions>): Promise<RequestOptions> {
+  private async applyResponseInterceptors(
+    options: Promise<RequestOptions>,
+  ): Promise<RequestOptions> {
     return this.applyInterceptors(options, this.client.responseInterceptors)
   }
 
-  private async applyInterceptors(options: Promise<RequestOptions>, interceptors?: RequestInterceptor[]): Promise<RequestOptions> {
+  private async applyInterceptors(
+    options: Promise<RequestOptions>,
+    interceptors?: RequestInterceptor[],
+  ): Promise<RequestOptions> {
     if (interceptors) {
-      interceptors?.forEach(interceptor => {
-        options = options.then(interceptor);
-      });
+      interceptors?.forEach((interceptor) => {
+        options = options.then(interceptor)
+      })
     }
-    return options;
+    return options
   }
 
   private async applyErrorInterceptors(error: any): Promise<any> {
     if (this.client.errorInterceptors) {
       for (const interceptor of this.client.errorInterceptors) {
-        error = await interceptor(error);
+        error = await interceptor(error)
       }
     }
-    return Promise.reject(error);
+    return Promise.reject(error)
   }
 
   private defaultCacheOptions(): CacheOptions {
@@ -54,154 +65,147 @@ class WhaleRequest implements Requestor {
     return options
   }
 
-  private async applyCache(chain: Promise<RequestOptions>, options: RequestOptions, method: RequestOptionsType,): Promise<RequestOptions> {
-    let requestCache
-    let cacheOptions
-    let requestFunc = async () => {
+  private getCacheOptions(options: CacheOptions): CacheOptions {
+    const defaulOptions: CacheOptions = this.defaultCacheOptions()
+    return {
+      ...defaulOptions,
+      ...options,
+    }
+  }
+
+  private async applyCache(
+    chain: Promise<RequestOptions>,
+    options: RequestOptions,
+    method: RequestOptionsType,
+  ): Promise<RequestOptions> {
+    let requestCache: CacheManager
+    let cacheOptions: CacheOptions
+
+    const requestFunc = async () => {
       try {
-        let response = await method(options);
-        if (requestCache && requestCache.useCache) {
-          requestCache.set(cacheOptions.key(options), response, cacheOptions.duration); // Cache the response
+        const response = await method(options)
+
+        if (cacheOptions && requestCache && options.useCache) {
+          requestCache.set(
+            cacheOptions.key!(options),
+            response,
+            cacheOptions.duration,
+          ) // Cache the response
         }
-        return response;
+        return response
       } catch (error) {
-        if (options.retry&&options.retry>0){
+        if (options.retry && options.retry > 0) {
           throw error
-        }else{
-          await this.applyErrorInterceptors(error);
+        } else {
+          await this.applyErrorInterceptors(error)
         }
       }
-    };
+    }
 
     if (options?.useCache) {
-      cacheOptions = options?.cache ? options.cache : this.defaultCacheOptions()
-      const key = cacheOptions.key(options)
+      cacheOptions = options?.cache
+        ? this.getCacheOptions(options.cache)
+        : this.defaultCacheOptions()
+
+      const key = cacheOptions.key!(options)
       // 获取缓存实现类
-      requestCache = useCache(cacheOptions.isPersist)
+      requestCache = useCache(cacheOptions.isPersist!)
       let cachedResponse
       if (cacheOptions.isValid) {
         if (cacheOptions.isValid(key, options)) {
           // 缓存有效
-          cachedResponse = await requestCache.getNromal(cacheOptions.key(options));
+          cachedResponse = await requestCache.getNromal(
+            cacheOptions.key!(options),
+          )
         } else {
           // 缓存失效
           cachedResponse = undefined
         }
       } else {
-        cachedResponse = await requestCache.get(key);
+        cachedResponse = await requestCache.get(key)
       }
       if (cachedResponse) {
         // 返回缓存数据
         chain = chain.then(async () => {
           return Promise.resolve(cachedResponse as RequestOptions)
-        });
+        })
       } else {
-        if (options.retry&&options.retry>0){
+        if (options.retry && options.retry > 0) {
           chain = this.retry<RequestOptions>(requestFunc, 2, 100)
-        }else{
-          chain = chain.then(requestFunc);
+        } else {
+          chain = chain.then(requestFunc)
         }
       }
     } else {
-      if (options.retry&&options.retry>0){
+      if (options.retry && options.retry > 0) {
         chain = this.retry<RequestOptions>(requestFunc, 2, 100)
-      }else{
-        chain = chain.then(requestFunc);
+      } else {
+        chain = chain.then(requestFunc)
       }
     }
-    return chain;
+    return chain
   }
 
-  private async retry<T>(fn: () => Promise<T>, retries: number, interval: number): Promise<T> {
-    let attempts = 0;
+  private async retry<T>(
+    fn: () => Promise<T>,
+    retries: number,
+    interval: number,
+  ): Promise<T> {
+    let attempts = 0
     while (attempts < retries) {
       try {
-        return await fn();
+        return await fn()
       } catch (error) {
-        attempts++;
+        attempts++
         if (attempts >= retries) {
           await this.applyErrorInterceptors(error)
-          throw error;
+          throw error
         }
-        await new Promise(resolve => setTimeout(resolve, interval));
+        await new Promise((resolve) => setTimeout(resolve, interval))
       }
     }
-    throw new Error('Exceeded maximum retries');
+    throw new Error('Exceeded maximum retries')
   }
 
   private defaultCacheKey(options: RequestOptions): string {
     // 请求缓存
-    const cacheKey = `${options.url}_${JSON.stringify(options.params || {})}_${JSON.stringify(options.data || {})}`;
+    const cacheKey = `${options.url}_${JSON.stringify(options.params || {})}_${JSON.stringify(options.data || {})}`
     return cacheKey
   }
 
-  private async requestWrapper(
-    method: RequestOptionsType,
-    options: RequestOptions,
-  ) {
-    let chain = Promise.resolve(options);
+  private async request(method: RequestOptionsType, options: RequestOptions) {
+    let chain = Promise.resolve(options)
 
     // 依次应用请求拦截器
     chain = this.applyRequestInterceptors(chain)
 
     // 缓存管理
-    chain = this.applyCache(chain, options, method);
+    chain = this.applyCache(chain, options, method)
 
     // 依次应用响应拦截器
     chain = this.applyResponseInterceptors(chain)
 
     return chain
-    // return this.request(method, options)
   }
-
-
-  private async request(
-    method: RequestOptionsType,
-    options: RequestOptions,
-  ) {
-    let chain = Promise.resolve(options);
-
-    // 依次应用请求拦截器
-    chain = this.applyRequestInterceptors(chain)
-
-    // 缓存管理
-    chain = this.applyCache(chain, options, method);
-
-    // 依次应用响应拦截器
-    chain = this.applyResponseInterceptors(chain)
-    return chain
-  }
-
-  //  get(url:string,options: RequestOptions) {
-  //    console.log(url)
-  //   return this.requestWrapper(this.client.get(url, options), options)
-  // }
 
   get(options: RequestOptionsTypeTips) {
-    return this.requestWrapper(this.client.get, options);
+    return this.request(this.client.get, options)
   }
 
-
-  get1(options:RequestOptionsTypeTips) {
-    return Promise.resolve('11')
-  }
   async post(options: RequestOptionsTypeTips) {
-    return this.requestWrapper(this.client.post, options)
+    return this.request(this.client.post, options)
   }
 }
 
-
 // 本模块的大部分功能都需要使用到requestor
-export let whaleRequest: WhaleRequest;
+export let whaleRequest: WhaleRequest
 
 export function inject(requestor: Requestor) {
   whaleRequest = WhaleRequest.create(requestor)
 }
 
-
 export function useRequestor(): Requestor {
-  return whaleRequest;
+  return whaleRequest
 }
 
-
-export default WhaleRequest;
+export default WhaleRequest
