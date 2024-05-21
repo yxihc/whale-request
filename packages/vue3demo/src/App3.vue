@@ -18,21 +18,25 @@
 
 import {whaleRequest} from "@whale-requset/request-lib/request-core";
 
-
 getData()
-
+//
 // setTimeout(() => {
 //   console.log('===========================第二次===========================')
 //   getData()
-// }, 2000)
+// }, 1000)
+
+
 function getData() {
-  const url = 'http://jsonplaceholder.typicode.com/posts'
+  const url = 'http://jsonplaceholder.typicode.com/posts1'
 // 示例请求
   whaleRequest.get({
-    url: url, headers: {}, data: {},cache:{
-      duration:2000,
-      useCache:true,
-      isPersist:true
+    url: url,
+    headers: {},
+    data: {},
+    cache: {
+      duration: 5000,
+      useCache: false,
+      isPersist: true
     }
   }).then(data => {
     console.log('示例请求成功:', data);
@@ -45,15 +49,12 @@ function testPost() {
   const url = 'http://jsonplaceholder.typicode.com/posts'
   let formdata = new FormData()
   formdata.append("1", "1")
-
-
 }
 
 //
 // networkClient.get({ url: url, data: { key: 'value' } }).then(data => {
 //   console.log('POST Response:', data);
 // });
-
 
 </script>
 

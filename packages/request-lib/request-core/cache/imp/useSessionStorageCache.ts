@@ -1,5 +1,4 @@
 import {AsyncCacheStore} from "../asyncCacheStore";
-
 class SessionStorageCacheStore implements AsyncCacheStore {
     private storage: Storage;
     constructor() {
@@ -12,15 +11,12 @@ class SessionStorageCacheStore implements AsyncCacheStore {
         }
         return undefined;
     }
-
     async set<T>(key: string, value: T): Promise<void> {
         this.storage.setItem(key, JSON.stringify(value));
     }
-
     async delete(key: string): Promise<void> {
         this.storage.removeItem(key);
     }
-
     async has(key: string): Promise<boolean> {
         return true;
     }

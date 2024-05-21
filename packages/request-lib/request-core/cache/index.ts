@@ -1,7 +1,7 @@
 import {AsyncCacheStore} from "./asyncCacheStore"
 import {CacheItem} from "./cacheItem"
 
-class CacheManager implements AsyncCacheStore {
+class CacheManager  {
     private store: AsyncCacheStore;
     constructor(store: AsyncCacheStore) {
         this.store = store;
@@ -25,7 +25,6 @@ class CacheManager implements AsyncCacheStore {
             }
         }
     }
-
     async getNromal<T>(key: string): Promise<T | undefined> {
         const item = await this.store.get<CacheItem<T>>(key);
         return item.value;
@@ -36,6 +35,7 @@ class CacheManager implements AsyncCacheStore {
         if (!ttl) noExpire = true
         await this.store.set(key, {value, expiration, noExpire});
     }
+
     async delete(key: string): Promise<void> {
         await this.store.delete(key);
     }
@@ -49,7 +49,7 @@ import {useMemoryCache} from "./imp/useMemoryCache";
 import {useLocationStorageCache} from "./imp/useLocalStorageCache";
 
 
-export function useCache (isPersist:boolean):AsyncCacheStore{
+export function useCache (isPersist:boolean){
     return CacheManager.create(isPersist?useLocationStorageCache():useMemoryCache())
 }
 

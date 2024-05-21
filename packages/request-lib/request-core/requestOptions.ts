@@ -4,6 +4,7 @@ export interface RequestOptions {
     params?: Record<string, any>;
     data?: Record<string, any>;
     headers?: Record<string, string>;
+    useCache?:boolean
     cache?:CacheOptions
 }
 

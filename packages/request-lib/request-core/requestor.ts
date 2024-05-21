@@ -1,5 +1,5 @@
-import {RequestInterceptor, ResponseInterceptor, ErrorInterceptor} from './Interceptors.ts';
-import {RequestOptionsType} from "./requestOptions.ts";
+import {RequestInterceptor, ResponseInterceptor, ErrorInterceptor} from './interceptors';
+import {RequestOptionsType} from "./requestOptions";
 
 export interface Requestor {
   get: RequestOptionsType;
