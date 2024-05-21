@@ -6,7 +6,6 @@ import type {
   CacheOptions,
   RequestOptions,
   RequestOptionsType,
-  RequestOptionsTypeTips,
 } from './requestOptions'
 import type { RequestInterceptor } from './interceptors'
 
@@ -188,11 +187,11 @@ class WhaleRequest implements Requestor {
     return chain
   }
 
-  get(options: RequestOptionsTypeTips) {
+  get(options: RequestOptions) {
     return this.request(this.client.get, options)
   }
 
-  async post(options: RequestOptionsTypeTips) {
+  async post(options: RequestOptions) {
     return this.request(this.client.post, options)
   }
 }

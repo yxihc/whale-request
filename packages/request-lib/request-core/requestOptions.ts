@@ -8,6 +8,7 @@ export interface RequestOptions {
   useCache?: boolean
   cache?: CacheOptions
   retry?: number
+  retryInterval?: number
 }
 
 export interface CacheOptions {
@@ -23,5 +24,18 @@ export interface CacheOptions {
   isValid?(key: string, config: RequestOptions): boolean
 }
 
+// const actualErrorRetryInterval = computed(() => {
+//   if (errorRetryIntervalRef.value) return errorRetryIntervalRef.value;
+//   const baseTime = 1000;
+//   const minCoefficient = 1;
+//   const maxCoefficient = 9;
+//   // When retrying for the first time, in order to avoid the coefficient being 0
+//   // so replace 0 with 2, the coefficient range will become 1 - 2
+//   const coefficient = Math.floor(
+//     Math.random() * 2 ** Math.min(retriedCount.value, maxCoefficient) +
+//     minCoefficient,
+//   );
+//   return baseTime * coefficient;
+// });
+
 export type RequestOptionsType = (options: RequestOptions) => Promise<any>
-export type RequestOptionsTypeTips = RequestOptions

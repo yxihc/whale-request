@@ -21,6 +21,15 @@ getData()
 // }, 1000)
 
 function getData() {
+  whaleRequest.get({
+    cache: undefined,
+    data: undefined,
+    headers: undefined,
+    params: undefined,
+    retry: 0,
+    url: '',
+    useCache: false,
+  })
   const url = 'http://jsonplaceholder.typicode.com/posts'
   whaleRequest
     .get({
@@ -36,6 +45,10 @@ function getData() {
     })
     .catch((error) => {
       console.log('示例请求失败:', error)
+    })
+    .finally(() => {
+      // 取消loading
+      console.log('sadsa')
     })
 }
 </script>
