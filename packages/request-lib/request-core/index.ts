@@ -208,4 +208,8 @@ export function useRequestor(): Requestor {
   return whaleRequest
 }
 
+export function setGlobalOptions(options: RequestOptionsType) {
+  console.log(options)
+}
+
 export default WhaleRequest
