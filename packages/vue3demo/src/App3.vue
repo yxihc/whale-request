@@ -17,6 +17,7 @@
 // inject(httpClient)
 
 import {whaleRequest} from "@whale-requset/request-lib/request-core";
+import {RequestOptions} from "@whale-requset/request-lib/request-core/requestOptions.ts";
 
 getData()
 //
@@ -28,16 +29,19 @@ getData()
 
 function getData() {
   const url = 'http://jsonplaceholder.typicode.com/posts1'
-// 示例请求
+  const xx: RequestOptions = {
+    url: ""
+  }
   whaleRequest.get({
     url: url,
     headers: {},
     data: {},
+    retry: 2,
+    useCache: true,
     cache: {
       duration: 5000,
-      useCache: false,
       isPersist: true
-    }
+    },
   }).then(data => {
     console.log('示例请求成功:', data);
   }).catch(error => {

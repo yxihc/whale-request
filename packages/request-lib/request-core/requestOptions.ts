@@ -6,6 +6,7 @@ export interface RequestOptions {
     headers?: Record<string, string>;
     useCache?:boolean
     cache?:CacheOptions
+    retry?:number
 }
 
 export interface CacheOptions{
