@@ -24,7 +24,7 @@ class SessionStorageCacheStore implements AsyncCacheStore {
   }
 
   async has(key: string): Promise<boolean> {
-    return true
+    return this.storage.getItem(key) !== null
   }
 }
 

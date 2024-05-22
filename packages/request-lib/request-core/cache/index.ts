@@ -29,7 +29,7 @@ export class CacheManager {
     }
   }
 
-  async getNromal<T>(key: string): Promise<T | undefined> {
+  async getNormal<T>(key: string): Promise<T | undefined> {
     const item = await this.store.get<CacheItem<T>>(key)
     return item?.value
   }

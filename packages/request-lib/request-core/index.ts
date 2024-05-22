@@ -3,11 +3,11 @@ import { defaultsDeep } from 'lodash-unified'
 import { useCache } from './cache'
 import { useLocationStorageCache } from './cache/imp/useLocalStorageCache'
 import { useSessionStorageCache } from './cache/imp/useSessionStorageCache'
-import { defaultRequestOptions } from './requestOptions'
+import { defaultRequestOptions, getDefaultCacheOptions } from './requestOptions'
+import { actualErrorRetryInterval } from './utils'
 import type { AsyncCacheStore } from './cache/asyncCacheStore'
 import type { Requestor } from './requestor'
 import type { CacheManager } from './cache'
-
 import type {
   CacheOptions,
   RequestOptions,
@@ -59,23 +59,24 @@ class WhaleRequest implements Requestor {
     return Promise.reject(error)
   }
 
-  private defaultCacheOptions(): CacheOptions {
-    const options: CacheOptions = {
-      duration: 6 * 1000,
-      key: (config: RequestOptions): string => {
-        return this.defaultCacheKey(config)
-      },
-      isPersist: false,
+  private async getCachedResponse(
+    requestCache: CacheManager | undefined,
+    options: RequestOptions,
+    cacheOptions: CacheOptions
+  ): Promise<RequestOptions | undefined> {
+    if (!requestCache || !cacheOptions) return undefined
+    if (!requestCache.has(cacheOptions.key!(options))) {
+      return undefined
     }
-    return options
-  }
-
-  private getCacheOptions(options: CacheOptions): CacheOptions {
-    const defaulOptions: CacheOptions = this.defaultCacheOptions()
-    return {
-      ...defaulOptions,
-      ...options,
+    const key = cacheOptions.key!(options)
+    if (cacheOptions.isValid) {
+      if (cacheOptions.isValid(key, options)) {
+        return requestCache.getNormal(key)
+      }
+    } else {
+      return requestCache.get(key)
     }
+    return undefined
   }
 
   private async applyCache(
@@ -83,8 +84,9 @@ class WhaleRequest implements Requestor {
     options: RequestOptions,
     method: RequestOptionsType
   ): Promise<RequestOptions> {
-    let requestCache: CacheManager
-    let cacheOptions: CacheOptions
+    const cacheOptions: CacheOptions =
+      options?.cache || getDefaultCacheOptions()
+    const requestCache: CacheManager = useCache(cacheOptions.isPersist!)
 
     const requestFunc = async () => {
       try {
@@ -95,7 +97,7 @@ class WhaleRequest implements Requestor {
             cacheOptions.key!(options),
             response,
             cacheOptions.duration
-          ) // Cache the response
+          )
         }
         return response
       } catch (error) {
@@ -108,75 +110,32 @@ class WhaleRequest implements Requestor {
     }
 
     if (options?.useCache) {
-      cacheOptions = options?.cache
-        ? this.getCacheOptions(options.cache)
-        : this.defaultCacheOptions()
-
-      const key = cacheOptions.key!(options)
-      // 获取缓存实现类
-      requestCache = useCache(cacheOptions.isPersist!)
-      let cachedResponse
-      if (cacheOptions.isValid) {
-        if (cacheOptions.isValid(key, options)) {
-          // 缓存有效
-          cachedResponse = await requestCache.getNromal(
-            cacheOptions.key!(options)
-          )
-        } else {
-          // 缓存失效
-          cachedResponse = undefined
-        }
-      } else {
-        cachedResponse = await requestCache.get(key)
-      }
+      const cachedResponse = await this.getCachedResponse(
+        requestCache,
+        options,
+        cacheOptions
+      )
       if (cachedResponse) {
         // 返回缓存数据
         chain = chain.then(async () => {
           return Promise.resolve(cachedResponse as RequestOptions)
         })
-      } else {
-        if (options.retry && options.retry > 0) {
-          chain = this.retry<RequestOptions>(
-            requestFunc,
-            options.retry,
-            options.retryInterval
-              ? options.retryInterval
-              : this.actualErrorRetryInterval(options.retry)
-          )
-        } else {
-          chain = chain.then(requestFunc)
-        }
+        return chain
       }
+    }
+
+    if (options?.retry && options.retry > 0) {
+      chain = this.retry<RequestOptions>(
+        requestFunc,
+        options.retry,
+        options.retryInterval
+          ? options.retryInterval
+          : actualErrorRetryInterval(options.retry)
+      )
     } else {
-      if (options.retry && options.retry > 0) {
-        chain = this.retry<RequestOptions>(
-          requestFunc,
-          options.retry,
-          options.retryInterval
-            ? options.retryInterval
-            : this.actualErrorRetryInterval(options.retry)
-        )
-      } else {
-        chain = chain.then(requestFunc)
-      }
+      chain = chain.then(requestFunc)
     }
     return chain
-  }
-
-  private actualErrorRetryInterval(retriedCount: number) {
-    if (retriedCount < 1) {
-      return 0
-    }
-    const baseTime = 1000
-    const minCoefficient = 1
-    const maxCoefficient = 9
-    // When retrying for the first time, in order to avoid the coefficient being 0
-    // so replace 0 with 2, the coefficient range will become 1 - 2
-    const coefficient = Math.floor(
-      Math.random() * 2 ** Math.min(retriedCount, maxCoefficient) +
-        minCoefficient
-    )
-    return baseTime * coefficient
   }
 
   private async retry<T>(
@@ -200,19 +159,10 @@ class WhaleRequest implements Requestor {
     throw new Error('Exceeded maximum retries')
   }
 
-  private defaultCacheKey(options: RequestOptions): string {
-    // 请求缓存
-    const cacheKey = `${options.url}_${JSON.stringify(
-      options.params || {}
-    )}_${JSON.stringify(options.data || {})}`
-    return cacheKey
-  }
-
   private async request(method: RequestOptionsType, options: RequestOptions) {
     // 参数归一化
     options = this.normalizeOptions(options)
 
-    console.log(options)
     let chain = Promise.resolve(options)
 
     // 依次应用请求拦截器

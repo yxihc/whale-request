@@ -16,8 +16,7 @@ class MemoryCacheStore implements AsyncCacheStore {
   }
 
   async has(key: string): Promise<boolean> {
-    console.log(key)
-    return true
+    return this.store.has(key)
   }
 }
 

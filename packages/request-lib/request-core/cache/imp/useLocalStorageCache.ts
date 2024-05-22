@@ -23,9 +23,8 @@ class LocalStorageCacheStore implements AsyncCacheStore {
     this.storage.removeItem(key)
   }
 
-  has(key: string): Promise<boolean> {
-    console.log(key)
-    return Promise.resolve(false)
+  async has(key: string): Promise<boolean> {
+    return this.storage.getItem(key) !== null
   }
 }
 

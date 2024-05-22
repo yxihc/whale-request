@@ -30,13 +30,17 @@ export interface CacheOptions {
 export type RequestOptionsType = (options: RequestOptions) => Promise<any>
 
 export const defaultRequestOptions: RequestOptions = {
-  cache: {
-    duration: 6 * 1000,
+  cache: getDefaultCacheOptions(),
+}
+
+export function getDefaultCacheOptions(): CacheOptions {
+  return {
+    duration: 60 * 1000,
     key: (config: RequestOptions): string => {
       return defaultCacheKey(config)
     },
     isPersist: false,
-  },
+  }
 }
 
 function defaultCacheKey(options: RequestOptions): string {

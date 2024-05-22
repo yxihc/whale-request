@@ -1,0 +1,29 @@
+{
+  "name": "whale-request",
+  "version": "0.0.0-dev.1",
+  "description": "A Component Library for http request",
+  "keywords": [
+    "whale-request",
+    "whale",
+    "request library",
+    "http",
+    "request",
+    "vue"
+  ],
+  "homepage": "https://github.com/yxihc/whale",
+  "bugs": {
+    "url": "https://github.com/yxihc/whale/issues"
+  },
+  "license": "MIT",
+  "main": "lib/index.js",
+  "module": "es/index.mjs",
+  "types": "es/index.d.ts",
+  "unpkg": "dist/index.full.js",
+  "jsdelivr": "dist/index.full.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@whale-requset/request-lib": "workspace:*"
+  }
+}

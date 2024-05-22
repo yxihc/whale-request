@@ -11,10 +11,9 @@
 // import {inject,whaleRequest,useRequestor} from "@whale-requset/request-lib/request-core";
 // inject(httpClient)
 
-import {
-  setGlobalOptions,
-  whaleRequest,
-} from '@whale-requset/request-lib/request-core'
+import { setGlobalOptions, whaleRequest } from '@whale-requset/request-lib'
+// import { setGlobalOptions, whaleRequest } from 'whale-requset'
+
 // setGlobalOptions({
 //   url: '111111',
 //   useCache: false,
@@ -33,11 +32,12 @@ getData()
 // }, 1000)
 
 function getData() {
-  const url = 'http://jsonplaceholder.typicode.com/posts1'
+  const url = 'http://jsonplaceholder.typicode.com/posts'
   whaleRequest
     .get({
       url,
-      retry: 3,
+      useCache: true,
+      retry: 0,
       retryInterval: 1000,
     })
     .then((data) => {
