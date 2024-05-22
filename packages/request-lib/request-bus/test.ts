@@ -1,4 +1,4 @@
-import { publishArticle, deleteArticle } from './'
+import { deleteArticle, publishArticle } from './'
 
 publishArticle()
 

@@ -2,6 +2,6 @@
 // import {requestor} from '../request-axios-imp'
 // inject(requestor);
 
-export * from './templet';
+export * from './templet'
 
-export {publishArticle} from './patch';
+export { publishArticle } from './patch'

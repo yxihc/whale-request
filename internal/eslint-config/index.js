@@ -6,6 +6,7 @@ module.exports = defineConfig({
     browser: true,
     node: true,
   },
+
   plugins: ['@typescript-eslint', 'prettier', 'unicorn'],
   extends: [
     'eslint:recommended',

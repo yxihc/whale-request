@@ -38,7 +38,7 @@ function getData() {
     .get({
       url,
       retry: 3,
-      retryInterval: 5000,
+      retryInterval: 1000,
     })
     .then((data) => {
       // return whaleRequest.get({

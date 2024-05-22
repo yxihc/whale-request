@@ -1,5 +1,3 @@
-
-
 export const publishArticle = () => {
-  console.log('patch publishArticle');
-};
+  console.log('patch publishArticle')
+}
