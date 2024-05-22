@@ -2,6 +2,7 @@
 import { useCache } from './cache'
 import type { Requestor } from './requestor'
 import type { CacheManager } from './cache'
+
 import type {
   CacheOptions,
   RequestOptions,
@@ -21,20 +22,20 @@ class WhaleRequest implements Requestor {
   }
 
   private async applyRequestInterceptors(
-    options: Promise<RequestOptions>,
+    options: Promise<RequestOptions>
   ): Promise<RequestOptions> {
     return this.applyInterceptors(options, this.client.requestInterceptors)
   }
 
   private async applyResponseInterceptors(
-    options: Promise<RequestOptions>,
+    options: Promise<RequestOptions>
   ): Promise<RequestOptions> {
     return this.applyInterceptors(options, this.client.responseInterceptors)
   }
 
   private async applyInterceptors(
     options: Promise<RequestOptions>,
-    interceptors?: RequestInterceptor[],
+    interceptors?: RequestInterceptor[]
   ): Promise<RequestOptions> {
     if (interceptors) {
       interceptors?.forEach((interceptor) => {
@@ -75,7 +76,7 @@ class WhaleRequest implements Requestor {
   private async applyCache(
     chain: Promise<RequestOptions>,
     options: RequestOptions,
-    method: RequestOptionsType,
+    method: RequestOptionsType
   ): Promise<RequestOptions> {
     let requestCache: CacheManager
     let cacheOptions: CacheOptions
@@ -88,7 +89,7 @@ class WhaleRequest implements Requestor {
           requestCache.set(
             cacheOptions.key!(options),
             response,
-            cacheOptions.duration,
+            cacheOptions.duration
           ) // Cache the response
         }
         return response
@@ -114,7 +115,7 @@ class WhaleRequest implements Requestor {
         if (cacheOptions.isValid(key, options)) {
           // 缓存有效
           cachedResponse = await requestCache.getNromal(
-            cacheOptions.key!(options),
+            cacheOptions.key!(options)
           )
         } else {
           // 缓存失效
@@ -148,7 +149,7 @@ class WhaleRequest implements Requestor {
   private async retry<T>(
     fn: () => Promise<T>,
     retries: number,
-    interval: number,
+    interval: number
   ): Promise<T> {
     let attempts = 0
     while (attempts < retries) {
@@ -168,7 +169,9 @@ class WhaleRequest implements Requestor {
 
   private defaultCacheKey(options: RequestOptions): string {
     // 请求缓存
-    const cacheKey = `${options.url}_${JSON.stringify(options.params || {})}_${JSON.stringify(options.data || {})}`
+    const cacheKey = `${options.url}_${JSON.stringify(
+      options.params || {}
+    )}_${JSON.stringify(options.data || {})}`
     return cacheKey
   }
 

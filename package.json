@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "pnpm run -C packages/vue3demo dev",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docs:dev": "pnpm run -C packages/yxhcVitpress docs:dev"
+    "docs:dev": "pnpm run -C packages/yxhcVitpress docs:dev",
+    "lint": "eslint . --ext .vue,.js,.ts,.jsx,.tsx,.md,.json --max-warnings 0 --cache",
+    "lint:fix": "pnpm run lint --fix"
   },
   "dependencies": {
     "@whale-requset/request-lib": "workspace:*",
@@ -18,10 +20,8 @@
   "devDependencies": {
     "@types/node": "^18.19.25",
     "@whale-request/eslint-config": "workspace:*",
-    "eslint": "^9.3.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint": "^8.18.0",
     "eslint-define-config": "^1.5.1",
-    "eslint-plugin-prettier": "^5.1.3",
     "prettier": "^3.2.5",
     "typescript": "^5.2.2"
   },

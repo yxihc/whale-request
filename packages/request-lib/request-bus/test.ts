@@ -1,5 +1,5 @@
-import { publishArticle, deleteArticle } from './';
+import { publishArticle, deleteArticle } from './'
 
-publishArticle();
+publishArticle()
 
-deleteArticle();
+deleteArticle()
