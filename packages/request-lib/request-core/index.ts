@@ -1,5 +1,10 @@
 // NetworkClient.ts
+import { defaultsDeep } from 'lodash-unified'
 import { useCache } from './cache'
+import { useLocationStorageCache } from './cache/imp/useLocalStorageCache'
+import { useSessionStorageCache } from './cache/imp/useSessionStorageCache'
+import { defaultRequestOptions } from './requestOptions'
+import type { AsyncCacheStore } from './cache/asyncCacheStore'
 import type { Requestor } from './requestor'
 import type { CacheManager } from './cache'
 
@@ -131,19 +136,47 @@ class WhaleRequest implements Requestor {
         })
       } else {
         if (options.retry && options.retry > 0) {
-          chain = this.retry<RequestOptions>(requestFunc, 2, 100)
+          chain = this.retry<RequestOptions>(
+            requestFunc,
+            options.retry,
+            options.retryInterval
+              ? options.retryInterval
+              : this.actualErrorRetryInterval(options.retry)
+          )
         } else {
           chain = chain.then(requestFunc)
         }
       }
     } else {
       if (options.retry && options.retry > 0) {
-        chain = this.retry<RequestOptions>(requestFunc, 2, 100)
+        chain = this.retry<RequestOptions>(
+          requestFunc,
+          options.retry,
+          options.retryInterval
+            ? options.retryInterval
+            : this.actualErrorRetryInterval(options.retry)
+        )
       } else {
         chain = chain.then(requestFunc)
       }
     }
     return chain
+  }
+
+  private actualErrorRetryInterval(retriedCount: number) {
+    if (retriedCount < 1) {
+      return 0
+    }
+    const baseTime = 1000
+    const minCoefficient = 1
+    const maxCoefficient = 9
+    // When retrying for the first time, in order to avoid the coefficient being 0
+    // so replace 0 with 2, the coefficient range will become 1 - 2
+    const coefficient = Math.floor(
+      Math.random() * 2 ** Math.min(retriedCount, maxCoefficient) +
+        minCoefficient
+    )
+    return baseTime * coefficient
   }
 
   private async retry<T>(
@@ -176,6 +209,10 @@ class WhaleRequest implements Requestor {
   }
 
   private async request(method: RequestOptionsType, options: RequestOptions) {
+    // 参数归一化
+    options = this.normalizeOptions(options)
+
+    console.log(options)
     let chain = Promise.resolve(options)
 
     // 依次应用请求拦截器
@@ -188,6 +225,10 @@ class WhaleRequest implements Requestor {
     chain = this.applyResponseInterceptors(chain)
 
     return chain
+  }
+
+  private normalizeOptions(options: RequestOptions): RequestOptions {
+    return defaultsDeep(options, defaultRequestOptions)
   }
 
   get(options: RequestOptions) {
@@ -210,8 +251,23 @@ export function useRequestor(): Requestor {
   return whaleRequest
 }
 
-export function setGlobalOptions(options: RequestOptionsType) {
-  console.log(options)
+export function setGlobalOptions(options: RequestOptions) {
+  Object.keys(options).forEach((key) => {
+    ;(defaultRequestOptions as any)[key] = (options as any)[key]
+  })
+}
+
+export const requestCache = {
+  memoryCache: useSessionStorageCache() as AsyncCacheStore,
+  persistCache: useLocationStorageCache() as AsyncCacheStore,
+}
+
+export function injectCache(
+  memoryCache: AsyncCacheStore,
+  persistCache: AsyncCacheStore
+) {
+  requestCache.memoryCache = memoryCache
+  requestCache.persistCache = persistCache
 }
 
 export default WhaleRequest

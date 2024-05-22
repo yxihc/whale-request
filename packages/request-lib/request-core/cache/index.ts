@@ -1,8 +1,10 @@
-import { AsyncCacheStore } from './asyncCacheStore'
-import { CacheItem } from './cacheItem'
+import { requestCache } from '../index'
+import type { AsyncCacheStore } from './asyncCacheStore'
+import type { CacheItem } from './cacheItem'
 
 export class CacheManager {
   private store: AsyncCacheStore
+
   constructor(store: AsyncCacheStore) {
     this.store = store
   }
@@ -10,6 +12,7 @@ export class CacheManager {
   static create(store: AsyncCacheStore): CacheManager {
     return new CacheManager(store)
   }
+
   async get<T>(key: string): Promise<T | undefined> {
     const item = await this.store.get<CacheItem<T>>(key)
     if (item?.noExpire) {
@@ -25,12 +28,14 @@ export class CacheManager {
       }
     }
   }
+
   async getNromal<T>(key: string): Promise<T | undefined> {
     const item = await this.store.get<CacheItem<T>>(key)
     return item?.value
   }
+
   async set<T>(key: string, value: T, ttl?: number): Promise<void> {
-    let expiration: number = 0
+    let expiration = 0
     let noExpire = false
     if (!ttl) {
       noExpire = true
@@ -46,15 +51,12 @@ export class CacheManager {
   }
 
   async has(key: string): Promise<boolean> {
-    return await this.store.has(key)
+    return this.store.has(key)
   }
 }
 
-import { useMemoryCache } from './imp/useMemoryCache'
-import { useLocationStorageCache } from './imp/useLocalStorageCache'
-
 export function useCache(isPersist: boolean) {
   return CacheManager.create(
-    isPersist ? useLocationStorageCache() : useMemoryCache(),
+    isPersist ? requestCache.persistCache : requestCache.memoryCache
   )
 }

@@ -1,9 +1,9 @@
-import {
+import type {
+  ErrorInterceptor,
   RequestInterceptor,
   ResponseInterceptor,
-  ErrorInterceptor,
 } from './interceptors'
-import { RequestOptionsType } from './requestOptions'
+import type { RequestOptionsType } from './requestOptions'
 
 export interface Requestor {
   get: RequestOptionsType

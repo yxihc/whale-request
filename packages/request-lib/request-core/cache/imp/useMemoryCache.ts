@@ -1,26 +1,26 @@
-import {AsyncCacheStore} from "../asyncCacheStore";
+import type { AsyncCacheStore } from '../asyncCacheStore'
 
 class MemoryCacheStore implements AsyncCacheStore {
-    private store: Map<string, any> = new Map();
+  private store: Map<string, any> = new Map()
 
-    async get<T>(key: string): Promise<T | undefined> {
-        return this.store.get(key);
-    }
+  async get<T>(key: string): Promise<T | undefined> {
+    return this.store.get(key)
+  }
 
-    async set<T>(key: string, value: T): Promise<void> {
-        this.store.set(key, value);
-    }
+  async set<T>(key: string, value: T): Promise<void> {
+    this.store.set(key, value)
+  }
 
-    async delete(key: string): Promise<void> {
-        this.store.delete(key);
-    }
+  async delete(key: string): Promise<void> {
+    this.store.delete(key)
+  }
 
-    async has(key: string): Promise<boolean> {
-        return true;
-    }
+  async has(key: string): Promise<boolean> {
+    console.log(key)
+    return true
+  }
 }
 
-
 export function useMemoryCache() {
-   return new MemoryCacheStore()
+  return new MemoryCacheStore()
 }

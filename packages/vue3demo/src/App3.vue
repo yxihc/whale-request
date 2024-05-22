@@ -11,8 +11,20 @@
 // import {inject,whaleRequest,useRequestor} from "@whale-requset/request-lib/request-core";
 // inject(httpClient)
 
-import { whaleRequest } from '@whale-requset/request-lib/request-core'
-
+import {
+  setGlobalOptions,
+  whaleRequest,
+} from '@whale-requset/request-lib/request-core'
+// setGlobalOptions({
+//   url: '111111',
+//   useCache: false,
+//   cache: {
+//     isPersist: false,
+//     key(config) {
+//       return `${config?.url}`
+//     },
+//   },
+// })
 getData()
 //
 // setTimeout(() => {
@@ -21,34 +33,21 @@ getData()
 // }, 1000)
 
 function getData() {
-  whaleRequest.get({
-    cache: undefined,
-    data: undefined,
-    headers: undefined,
-    params: undefined,
-    retry: 0,
-    url: '',
-    useCache: false,
-  })
-  const url = 'http://jsonplaceholder.typicode.com/posts'
+  const url = 'http://jsonplaceholder.typicode.com/posts1'
   whaleRequest
     .get({
       url,
+      retry: 3,
+      retryInterval: 5000,
     })
     .then((data) => {
-      return whaleRequest.get({
-        url: 'http://jsonplaceholder.typicode.com/posts1',
-      })
-    })
-    .then((data) => {
-      console.log(data)
+      // return whaleRequest.get({
+      //   url: 'http://jsonplaceholder.typicode.com/posts1',
+      // })
+      console.log('示例请求成功:', data)
     })
     .catch((error) => {
       console.log('示例请求失败:', error)
-    })
-    .finally(() => {
-      // 取消loading
-      console.log('sadsa')
     })
 }
 </script>
