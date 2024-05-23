@@ -1,4 +1,3 @@
-// RequestMethod.ts
 export interface RequestOptions {
   //请求地址
   url?: string

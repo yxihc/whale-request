@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-// import {publishArticle} from '@whale-requset/request-bus'
+// import {publishArticle} from '@whale-requset/request-lib-bus'
 // console.log(publishArticle)
 
-import { regUser } from '@whale-requset/request-lib/request-bus'
+import { regUser } from '@whale-requset/request-lib/request-lib-bus'
 
 defineProps<{ msg: string }>()
 

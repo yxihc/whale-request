@@ -22,8 +22,5 @@
   "jsdelivr": "dist/index.full.js",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "@whale-requset/request-lib": "workspace:*"
   }
 }

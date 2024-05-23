@@ -1,6 +1,7 @@
-import { requestCache } from '../index'
-import type { AsyncCacheStore } from './asyncCacheStore'
+import { useLocationStorageCache } from './imp/useLocalStorageCache'
+import { useSessionStorageCache } from './imp/useSessionStorageCache'
 import type { CacheItem } from './cacheItem'
+import type { AsyncCacheStore } from './asyncCacheStore'
 
 export class CacheManager {
   private store: AsyncCacheStore
@@ -55,7 +56,26 @@ export class CacheManager {
   }
 }
 
+export const requestCache = {
+  memoryCache: {} as AsyncCacheStore,
+  persistCache: {} as AsyncCacheStore,
+}
+
+export function injectCache(
+  memoryCache: AsyncCacheStore,
+  persistCache: AsyncCacheStore
+) {
+  requestCache.memoryCache = memoryCache
+  requestCache.persistCache = persistCache
+}
+
 export function useCache(isPersist: boolean) {
+  if (!requestCache.memoryCache) {
+    requestCache.memoryCache = useSessionStorageCache()
+  }
+  if (!requestCache.persistCache) {
+    requestCache.persistCache = useLocationStorageCache()
+  }
   return CacheManager.create(
     isPersist ? requestCache.persistCache : requestCache.memoryCache
   )

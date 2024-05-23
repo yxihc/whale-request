@@ -2,3 +2,5 @@ node_modules
 #dist
 pnpm-lock.yaml
 play
+
+请求库的封装.md
