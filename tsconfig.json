@@ -16,5 +16,7 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src"]
+  "paths": {
+    "@whale-request/*": ["packages/*", "internal/**/*", "internal/**/*.json"]
+  }
 }
