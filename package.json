@@ -20,22 +20,21 @@
     "@types/lodash": "^4.14.182",
     "@types/lodash-es": "^4.17.6",
     "@whale-requset/request-lib": "workspace:*",
-    "lodash": "^4.17.21",
-    "lodash-es": "^4.17.21",
-    "lodash-unified": "^1.0.2"
+    "babel-plugin-lodash": "^3.3.4",
+    "lodash-es": "^4.17.21"
   },
   "devDependencies": {
     "@esbuild-kit/cjs-loader": "^2.2.1",
     "@types/node": "^18.19.25",
     "@whale-request/eslint-config": "workspace:*",
+    "chalk": "^5.0.1",
+    "consola": "^2.15.3",
     "eslint": "^8.18.0",
     "eslint-define-config": "^1.5.1",
     "gulp": "^4.0.2",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
-    "typescript": "^5.2.2",
-    "chalk": "^5.0.1",
-    "consola": "^2.15.3"
+    "typescript": "^5.2.2"
   },
   "lint-staged": {
     "*.{vue,js,ts,jsx,tsx,md,json}": "eslint --fix"

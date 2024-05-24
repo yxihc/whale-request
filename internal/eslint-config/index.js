@@ -266,14 +266,11 @@ module.exports = defineConfig({
     'no-restricted-imports': [
       'error',
       {
-        paths: [
-          { name: 'lodash', message: 'Use lodash-unified instead.' },
-          { name: 'lodash-es', message: 'Use lodash-unified instead.' },
-        ],
+        paths: [{ name: 'lodash', message: 'Use lodash-es instead.' }],
         patterns: [
           {
-            group: ['lodash/*', 'lodash-es/*'],
-            message: 'Use lodash-unified instead.',
+            group: ['lodash/*'],
+            message: 'Use lodash-es instead.',
           },
         ],
       },

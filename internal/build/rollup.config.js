@@ -29,9 +29,6 @@ const RollUpConfig = {
       exports: 'named',
       extend: true,
       plugins: [terser()],
-      globals: {
-        lodash: 'lodash-unified',
-      },
     },
   ],
   plugins: [

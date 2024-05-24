@@ -1,4 +1,4 @@
-import { defaultsDeep } from 'lodash-unified'
+import { defaultsDeep } from 'lodash-es'
 import { useCache } from '../request-cache'
 import { defaultRequestOptions, getDefaultCacheOptions } from './requestOptions'
 import { actualErrorRetryInterval } from './utils'
