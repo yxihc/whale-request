@@ -2,13 +2,23 @@ import { createApp } from 'vue'
 import './style.css'
 
 // 注入
+// import {
+//   inject,
+//   injectCache,
+//   setGlobalOptions,
+//   useLocationStorageCache,
+//   useSessionStorageCache,
+// } from '@whale-requset/request-lib'
+
 import {
   inject,
   injectCache,
   setGlobalOptions,
   useLocationStorageCache,
   useSessionStorageCache,
-} from '@whale-requset/request-lib'
+  whaleRequest,
+} from 'whale-request'
+
 import { httpClient } from './http/request-axios-imp'
 
 import App from './App.vue'

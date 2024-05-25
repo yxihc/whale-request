@@ -21,9 +21,13 @@
     "@types/lodash-es": "^4.17.6",
     "@whale-requset/request-lib": "workspace:*",
     "babel-plugin-lodash": "^3.3.4",
-    "lodash-es": "^4.17.21"
+    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
+    "lodash-unified": "^1.0.2",
+    "whale-request": "npm:whale-request@latest"
   },
   "devDependencies": {
+    "@babel/types": "^7.21.2",
     "@esbuild-kit/cjs-loader": "^2.2.1",
     "@types/node": "^18.19.25",
     "@whale-request/eslint-config": "workspace:*",

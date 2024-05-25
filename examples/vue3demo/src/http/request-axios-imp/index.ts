@@ -1,6 +1,6 @@
 import axios from 'axios'
-import type { RequestOptions, Requestor } from '@whale-requset/request-lib'
-
+// import type { RequestOptions, Requestor } from '@whale-requset/request-lib'
+import type { RequestOptions, Requestor } from 'whale-requset'
 const requestInterceptors = [
   (options: RequestOptions) => {
     console.log('请求拦截器:', options)

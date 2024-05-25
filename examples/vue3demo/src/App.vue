@@ -7,10 +7,10 @@ import { regUser } from './http/request-bus'
 
 getData()
 
-// setTimeout(() => {
-//   console.log('===========================第二次===========================')
-//   getData()
-// }, 1000)
+setTimeout(() => {
+  console.log('===========================第二次===========================')
+  getData()
+}, 1000)
 
 function getData() {
   const url = 'http://jsonplaceholder.typicode.com/posts'
