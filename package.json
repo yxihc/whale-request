@@ -13,6 +13,7 @@
     "lint:fix": "pnpm run lint --fix",
     "build": "pnpm run -C internal/build start",
     "build2": "pnpm run -C internal/build build",
+    "buildtest": "pnpm run -C examples/testpackage build",
     "clean": "pnpm run clean:dist && pnpm run -r --parallel clean",
     "clean:dist": "rimraf dist"
   },

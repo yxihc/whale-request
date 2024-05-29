@@ -1,0 +1,24 @@
+{
+  "name": "testpackage",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "build:test": "vite build --mode test",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^2.0.943",
+    "rollup-plugin-visualizer": "^5.12.0",
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vite-plugin-progress": "^0.0.7",
+    "vue-tsc": "^2.0.6"
+  }
+}
