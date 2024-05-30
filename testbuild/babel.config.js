@@ -6,10 +6,8 @@ const plugins = [
   '@babel/plugin-proposal-optional-chaining',
   '@babel/plugin-proposal-class-properties',
 ]
-
 const babelConfig = {
   presets,
   plugins,
 }
-
 module.exports = babelConfig
