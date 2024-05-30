@@ -19,8 +19,12 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.24.5",
+    "@types/gulp": "^4.0.17",
+    "@types/inquirer": "^9.0.7",
+    "@types/ssh2": "^1.15.0",
     "@whale-requset/request-lib": "workspace:*",
     "babel-plugin-lodash": "^3.3.4",
+    "ssh2": "^1.15.0",
     "whale-request": "npm:whale-request@latest"
   },
   "devDependencies": {
@@ -43,12 +47,14 @@
     "eslint": "^8.18.0",
     "eslint-define-config": "^1.5.1",
     "gulp": "^4.0.2",
+    "inquirer": "^9.2.22",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.33.1",
     "rollup-plugin-dts": "^4.2.0",
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.29.0",
+    "rollup-plugin-visualizer": "^5.12.0",
     "typescript": "^5.2.2"
   },
   "lint-staged": {

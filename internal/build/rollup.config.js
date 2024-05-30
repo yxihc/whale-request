@@ -3,7 +3,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import resolve from '@rollup/plugin-node-resolve'
 import { terser } from 'rollup-plugin-terser'
 import typescript2 from 'rollup-plugin-typescript2'
-
+import { visualizer } from 'rollup-plugin-visualizer'
 import pkg from './../../packages/whale-request/package.json'
 
 /**
@@ -17,34 +17,29 @@ const RollUpConfig = {
       format: 'esm',
     },
     {
+      file: pkg.unpkg,
+      format: 'umd',
+      name: 'WhaleRequest',
+      plugins: [terser()],
+    },
+    {
       name: 'WhaleRequest',
       file: pkg.main,
       format: 'commonjs',
       exports: 'named',
     },
-    {
-      name: 'WhaleRequest',
-      file: pkg.unpkg,
-      format: 'umd',
-      exports: 'named',
-      extend: true,
-      plugins: [terser()],
-    },
   ],
   plugins: [
     resolve(),
     commonjs(),
-    typescript2({
-      tsconfigOverride: {
-        exclude: ['node_modules', 'examples', 'internal'],
-      },
-    }),
+    typescript2(),
     babel({
       extensions: ['js', 'ts', 'tsx'],
       babelHelpers: 'runtime',
       configFile: './babel.config.js',
-      exclude: [/core-js/],
+      exclude: 'node_modules/**',
     }),
+    visualizer(),
   ],
 }
 

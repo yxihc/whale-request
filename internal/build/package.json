@@ -2,11 +2,9 @@
   "name": "@whale-request/build",
   "version": "0.0.1",
   "scripts": {
-    "start": "gulp --require @esbuild-kit/cjs-loader -f autoBuild.ts",
-    "build": "gulp --require @esbuild-kit/cjs-loader -f autoBuild2.ts",
+    "start": "gulp --require @esbuild-kit/cjs-loader -f autoBuild2.ts",
+    "build": "gulp --require @esbuild-kit/cjs-loader -f autoBuild.ts",
     "build:code": "rollup --config rollup.config.js",
-    "build:types": "rollup --config ./build/rollup.config.types.js"
-  },
-  "devDependencies": {
+    "build:types": "rollup --config rollup.config.type.js"
   }
 }

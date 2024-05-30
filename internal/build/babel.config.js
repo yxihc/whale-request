@@ -1,38 +1,13 @@
-const presets = [
-  [
-    '@babel/preset-env',
-    {
-      targets: '> 0.25%, not dead',
-    },
-  ],
-  '@babel/preset-typescript',
-]
+const presets = ['@babel/preset-env', '@babel/preset-typescript']
+
 const plugins = [
+  '@babel/plugin-transform-runtime',
   '@babel/plugin-proposal-nullish-coalescing-operator',
   '@babel/plugin-proposal-optional-chaining',
-  [
-    '@babel/plugin-proposal-class-properties',
-    {
-      loose: true,
-    },
-  ],
+  '@babel/plugin-proposal-class-properties',
 ]
-
 const babelConfig = {
   presets,
   plugins,
 }
-
-if (process.env.NODE_ENV === 'test') {
-  babelConfig.plugins.push('@babel/plugin-transform-runtime')
-  babelConfig.targets = { node: 'current' }
-} else {
-  babelConfig.plugins.push([
-    '@babel/plugin-transform-runtime',
-    {
-      corejs: 3,
-    },
-  ])
-}
-
 module.exports = babelConfig

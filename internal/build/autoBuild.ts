@@ -35,7 +35,8 @@ export default series(
   // @ts-ignore
   withTaskName('clean', () => run('pnpm run clean', projRoot)), //创建输出文件
   withTaskName('createOutput', () => mkdir(wlOutput, { recursive: true })),
-  withTaskName('build', () => run('pnpm run build:code', buildRoot)),
+  withTaskName('build:code', () => run('pnpm run build:code', buildRoot)),
+  withTaskName('build:types', () => run('pnpm run build:types', buildRoot)),
   // moveFile
   // copyFiles
   parallel(copyFiles, moveFile),
