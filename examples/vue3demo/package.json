@@ -11,7 +11,7 @@
   "dependencies": {
     "axios": "^1.6.8",
     "vue": "^3.4.21",
-    "whale-request": "0.0.0-dev.2"
+    "whale-request": "0.0.0-dev.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

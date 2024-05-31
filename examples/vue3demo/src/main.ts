@@ -16,7 +16,6 @@ import {
   setGlobalOptions,
   useLocationStorageCache,
   useSessionStorageCache,
-  whaleRequest,
 } from 'whale-request'
 
 import { httpClient } from './http/request-axios-imp'

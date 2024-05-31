@@ -1,8 +1,15 @@
 import axios from 'axios'
 // import type { RequestOptions, Requestor } from '@whale-requset/request-lib'
-import type { RequestOptions, Requestor } from 'whale-requset'
+import {
+  type RequestOptions,
+  type Requestor,
+  whaleRequest,
+} from 'whale-request'
+// import type { RequestOptions, Requestor } from 'whale-requset'
+
 const requestInterceptors = [
   (options: RequestOptions) => {
+    console.log(whaleRequest)
     console.log('请求拦截器:', options)
     // options.headers = { ...options.headers, 'X-Custom-Header': 'value' }
     return options
