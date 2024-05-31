@@ -15,85 +15,64 @@ function withTaskName<T extends TaskFunction>(name: string, fn: T) {
   return Object.assign(fn, { displayName: name })
 }
 
-export default series(connect)
+export default series(readInputConnect)
 
-function connect(done: any) {
+function readInputConnect(done: any) {
+  const questions = [
+    {
+      type: 'input',
+      name: 'password',
+      message: '请输入服务器密码:',
+    },
+  ]
+  inquirer.prompt(questions).then((answers: any) => {
+    const password = answers.password
+    connect(done, password)
+  })
+}
+
+function connect(done: any, password: string) {
   const host = ''
   const sshConfig = {
     host,
     port: 22, // 默认 SSH 端口
     username: 'root',
-    password: '', // 或者使用私钥代替
+    password: password.trim(),
   }
   const client = new Client()
-
   client
     .on('ready', async () => {
       consola.info(chalk.green(`服务器(${host})==>连接成功`))
-      // client.exec('cd ..', (err, stream) => {
-      //   callback(err, stream, false)
-      // })
-      // client.exec('cd /server/testweb', (err, stream) => {
-      //   callback(err, stream, false)
-      // })
-      // client.exec('ls', (err, stream) => {
-      //   callback(err, stream, false)
-      // })
-      // cd ..; cd /server/testweb
-      // const result1 = await execCommand('cd .. ')
-      // consola.info(chalk.green(`服务器(${host})==>cd .. 执行成功：${result1}`))
-      // const result2 = await execCommand('cd server')
-      // consola.info(
-      //   chalk.green(`服务器(${host})==>cd /server/testweb 执行成功：${result2}`)
-      // )
-      const result3 = await execCommand('ls')
-      consola.info(
-        chalk.green(`服务器(${host})==>git pull 执行成功：${result3}`)
+      client.exec(
+        `
+      cd ..
+      cd /server/testweb 
+      git pull
+      `,
+        (err, stream) => {
+          stream
+            .on('close', (code: string, signal: string) => {
+              consola.info(chalk.green(`服务器(${host})==>命令执行成功`))
+              client.end()
+              consola.info(chalk.green(`服务器(${host})==>关闭连接`))
+              done()
+            })
+            .on('data', (data: any) => {
+              consola.info(chalk.green(`服务器(${host})==>响应：${data}`))
+            })
+            .stderr.on('data', (data: any) => {
+              consola.info(chalk.green(`服务器(${host})==>错误：${data}`))
+            })
+        }
       )
-      client.end()
-      done()
+    })
+    .on('error', (err) => {
+      console.error('Client :: error', err)
+    })
+    .on('end', () => {
+      console.log('Client :: disconnected')
     })
     .connect(sshConfig)
-
-  // const callback = (err: any, stream: any, isClose: boolean) => {
-  //   stream
-  //     .on('close', (code: string, signal: string) => {
-  //       consola.info(chalk.green(`服务器(${host})==>命令执行成功`))
-  //       if (isClose) client.end()
-  //     })
-  //     .on('data', (data: any) => {
-  //       consola.info(chalk.green(`服务器(${host})==>响应：${data}`))
-  //     })
-  //     .stderr.on('data', (data: any) => {
-  //       consola.info(chalk.green(`服务器(${host})==>错误：${data}`))
-  //     })
-  // }
-
-  // 用于执行命令的函数
-  const execCommand = (command: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      client.exec(command, (err, stream) => {
-        if (err) return reject(err)
-        let data = ''
-        stream
-          .on('close', (code, signal) => {
-            if (code !== 0) {
-              reject(
-                new Error(`Command failed with code ${code}, signal ${signal}`)
-              )
-            } else {
-              resolve(data)
-            }
-          })
-          .on('data', (chunk) => {
-            data += chunk
-          })
-          .stderr.on('data', (chunk) => {
-            console.error(`STDERR: ${chunk}`)
-          })
-      })
-    })
-  }
 }
 
 function inputTest(done: any) {
